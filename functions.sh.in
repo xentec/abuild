@@ -142,13 +142,10 @@ readconfig() {
 			export HOSTLDFLAGS="$LDFLAGS"
 			case "$TOOLCHAIN" in
 			gnu|'')
-				export CC=${CROSS_COMPILE}gcc
-				export CXX=${CROSS_COMPILE}g++
-				export LD=${CROSS_COMPILE}ld
-				export CPPFLAGS="--sysroot=${CBUILDROOT} $CPPFLAGS"
-				export CXXFLAGS="--sysroot=${CBUILDROOT} $CXXFLAGS"
-				export CFLAGS="--sysroot=${CBUILDROOT} $CFLAGS"
-				export LDFLAGS="--sysroot=${CBUILDROOT} $LDFLAGS"
+				local crossflags="--sysroot=${CBUILDROOT}"
+				export CC="${CROSS_COMPILE}gcc $crossflags $CROSSFLAGS"
+				export CXX="${CROSS_COMPILE}g++ $crossflags $CROSSFLAGS"
+				export LD="${CROSS_COMPILE}ld $crossflags $CROSSFLAGS"
 				;;
 			esac
 		fi
