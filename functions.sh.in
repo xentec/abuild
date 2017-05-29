@@ -141,6 +141,15 @@ readconfig() {
 			export HOSTCFLAGS="$CFLAGS"
 			export HOSTLDFLAGS="$LDFLAGS"
 			case "$TOOLCHAIN" in
+			llvm)
+				local crossflags="-target ${CHOST} --sysroot ${CBUILDROOT}"
+				test -n "$CPP" && export CPP="$CPP $crossflags $CROSSFLAGS" || true
+				export CXX="clang++ $crossflags $CROSSFLAGS"
+				export CC="clang $crossflags $CROSSFLAGS"
+				export AS="clang $crossflags $CROSSFLAGS"
+				export ASM="clang $crossflags $CROSSFLAGS"
+				test -n "$LD" && export LD="$CC $crossflags $CROSSFLAGS" || true
+				;;
 			gnu|'')
 				local crossflags="--sysroot=${CBUILDROOT}"
 				export CC="${CROSS_COMPILE}gcc $crossflags $CROSSFLAGS"
