@@ -120,16 +120,16 @@ readconfig() {
 
 	if [ "$CHOST" != "$CTARGET" ]; then
 		# setup environment for creating cross compiler
-		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/"
+		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/" || true
 	elif [ "$CBUILD" != "$CHOST" ]; then
 		# setup build root
-		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/"
+		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/" || true
 		# prepare pkg-config for cross building
-		[ -z "$PKG_CONFIG_PATH" ] && export PKG_CONFIG_PATH="${CBUILDROOT}/usr/lib/pkgconfig/"
-		[ -z "$PKG_CONFIG_SYSROOT_DIR" ] && export PKG_CONFIG_SYSROOT_DIR="${CBUILDROOT}"
+		[ -z "$PKG_CONFIG_PATH" ] && export PKG_CONFIG_PATH="${CBUILDROOT}/usr/lib/pkgconfig/" || true
+		[ -z "$PKG_CONFIG_SYSROOT_DIR" ] && export PKG_CONFIG_SYSROOT_DIR="${CBUILDROOT}" || true
 		# libtool bug workaround for extra rpaths
 		[ -z "$lt_cv_sys_lib_dlsearch_path_spec" ] && \
-			export lt_cv_sys_lib_dlsearch_path_spec="${CBUILDROOT}/lib ${CBUILDROOT}/usr/lib /usr/lib /lib /usr/local/lib"
+			export lt_cv_sys_lib_dlsearch_path_spec="${CBUILDROOT}/lib ${CBUILDROOT}/usr/lib /usr/lib /lib /usr/local/lib" || true
 		# setup cross-compiler
 		if [ -z "$CROSS_COMPILE" ]; then
 			export CROSS_COMPILE="${CHOST}-"
