@@ -125,6 +125,7 @@ readconfig() {
 		# setup build root
 		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/" || true
 		# prepare pkg-config for cross building
+		[ -z "$PKG_CONFIG" ] && export PKG_CONFIG="pkg-config --env-only" || true
 		[ -z "$PKG_CONFIG_PATH" ] && export PKG_CONFIG_PATH="${CBUILDROOT}/usr/lib/pkgconfig/" || true
 		[ -z "$PKG_CONFIG_SYSROOT_DIR" ] && export PKG_CONFIG_SYSROOT_DIR="${CBUILDROOT}" || true
 		# libtool bug workaround for extra rpaths
