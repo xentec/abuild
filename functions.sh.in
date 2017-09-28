@@ -121,16 +121,17 @@ readconfig() {
 
 	if [ "$CHOST" != "$CTARGET" ]; then
 		# setup environment for creating cross compiler
-		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/"
+		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/" || true
 	elif [ "$CBUILD" != "$CHOST" ]; then
 		# setup build root
-		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/"
+		[ -z "$CBUILDROOT" ] && export CBUILDROOT="$HOME/sysroot-$CTARGET_ARCH/" || true
 		# prepare pkg-config for cross building
-		[ -z "$PKG_CONFIG_PATH" ] && export PKG_CONFIG_PATH="${CBUILDROOT}/usr/lib/pkgconfig/"
-		[ -z "$PKG_CONFIG_SYSROOT_DIR" ] && export PKG_CONFIG_SYSROOT_DIR="${CBUILDROOT}"
+		[ -z "$PKG_CONFIG" ] && export PKG_CONFIG="pkg-config --env-only" || true
+		[ -z "$PKG_CONFIG_PATH" ] && export PKG_CONFIG_PATH="${CBUILDROOT}/usr/lib/pkgconfig/" || true
+		[ -z "$PKG_CONFIG_SYSROOT_DIR" ] && export PKG_CONFIG_SYSROOT_DIR="${CBUILDROOT}" || true
 		# libtool bug workaround for extra rpaths
 		[ -z "$lt_cv_sys_lib_dlsearch_path_spec" ] && \
-			export lt_cv_sys_lib_dlsearch_path_spec="${CBUILDROOT}/lib ${CBUILDROOT}/usr/lib /usr/lib /lib /usr/local/lib"
+			export lt_cv_sys_lib_dlsearch_path_spec="${CBUILDROOT}/lib ${CBUILDROOT}/usr/lib /usr/lib /lib /usr/local/lib" || true
 		# setup cross-compiler
 		if [ -z "$CROSS_COMPILE" ]; then
 			export CROSS_COMPILE="${CHOST}-"
@@ -141,13 +142,23 @@ readconfig() {
 			export HOSTCXXFLAGS="$CXXFLAGS"
 			export HOSTCFLAGS="$CFLAGS"
 			export HOSTLDFLAGS="$LDFLAGS"
-			export CC=${CROSS_COMPILE}gcc
-			export CXX=${CROSS_COMPILE}g++
-			export LD=${CROSS_COMPILE}ld
-			export CPPFLAGS="--sysroot=${CBUILDROOT} $CPPFLAGS"
-			export CXXFLAGS="--sysroot=${CBUILDROOT} $CXXFLAGS"
-			export CFLAGS="--sysroot=${CBUILDROOT} $CFLAGS"
-			export LDFLAGS="--sysroot=${CBUILDROOT} $LDFLAGS"
+			case "$TOOLCHAIN" in
+			llvm)
+				local crossflags="-target ${CHOST} --sysroot ${CBUILDROOT}"
+				test -n "$CPP" && export CPP="$CPP $crossflags $CROSSFLAGS" || true
+				export CXX="${CXX:-clang++} $crossflags $CROSSFLAGS"
+				export CC="${CC:-clang} $crossflags $CROSSFLAGS"
+				export AS="${AS:-clang} $crossflags $CROSSFLAGS"
+				export ASM="${ASM:-clang} $crossflags $CROSSFLAGS"
+				test -n "$LD" && export LD="$CC $crossflags $CROSSFLAGS" || true
+				;;
+			gnu|'')
+				local crossflags="--sysroot=${CBUILDROOT}"
+				export CC="${CROSS_COMPILE}gcc $crossflags $CROSSFLAGS"
+				export CXX="${CROSS_COMPILE}g++ $crossflags $CROSSFLAGS"
+				export LD="${CROSS_COMPILE}ld $crossflags $CROSSFLAGS"
+				;;
+			esac
 		fi
 	fi
 	return 0
